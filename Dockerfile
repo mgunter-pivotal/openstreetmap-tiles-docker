@@ -31,14 +31,14 @@ RUN apt-get install -y autoconf apache2-dev libtool libxml2-dev libbz2-dev libge
 RUN apt-get install -y postgresql-9.3-postgis-2.1 postgresql-contrib postgresql-server-dev-9.3
 
 # Install osm2pgsql
-RUN cd /tmp && git clone git://github.com/openstreetmap/osm2pgsql.git
+RUN cd /tmp && git clone https://github.com/openstreetmap/osm2pgsql.git
 RUN cd /tmp/osm2pgsql && \
     ./autogen.sh && \
     ./configure && \
     make && make install
 
 # Install the Mapnik library
-RUN cd /tmp && git clone git://github.com/mapnik/mapnik
+RUN cd /tmp && git clone https://github.com/mapnik/mapnik.git
 RUN cd /tmp/mapnik && \
     git checkout 2.2.x && \
     python scons/scons.py configure INPUT_PLUGINS=all OPTIMIZATION=3 SYSTEM_FONTS=/usr/share/fonts/truetype/ && \
@@ -50,7 +50,7 @@ RUN cd /tmp/mapnik && \
 RUN python -c 'import mapnik'
 
 # Install mod_tile and renderd
-RUN cd /tmp && git clone git://github.com/openstreetmap/mod_tile.git
+RUN cd /tmp && git clone https://github.com/openstreetmap/mod_tile.git
 RUN cd /tmp/mod_tile && \
     ./autogen.sh && \
     ./configure && \
