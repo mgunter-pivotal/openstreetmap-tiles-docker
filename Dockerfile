@@ -33,9 +33,11 @@ RUN apt-get install -y postgresql-9.3-postgis-2.1 postgresql-contrib postgresql-
 # Install osm2pgsql
 RUN cd /tmp && git clone https://github.com/openstreetmap/osm2pgsql.git
 RUN cd /tmp/osm2pgsql && \
-    ./autogen.sh && \
-    ./configure && \
-    make && make install
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    make && \
+    make install
 
 # Install the Mapnik library
 RUN cd /tmp && git clone https://github.com/mapnik/mapnik.git
