@@ -88,6 +88,7 @@ ADD mod_tile.conf /etc/apache2/mods-available/
 RUN a2enmod mod_tile
 
 # Ensure the webserver user can connect to the gis database
+# MG: NEED TO COMMENT OUT WHEN CONNECTING TO RDS
 RUN sed -i -e 's/local   all             all                                     peer/local gis www-data peer/' /etc/postgresql/9.3/main/pg_hba.conf
 
 # Tune postgresql
