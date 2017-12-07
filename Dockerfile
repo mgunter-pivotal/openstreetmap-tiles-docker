@@ -59,14 +59,13 @@ RUN cd /usr/local/src/mapnik-style && ./get-coastlines.sh /usr/local/share
 
 # Configure mapnik style-sheets
 RUN cd /usr/local/src/mapnik-style/inc && cp fontset-settings.xml.inc.template fontset-settings.xml.inc
-ADD datasource-settings.sed /tmp/
+ADD datasource-settings.xml.inc.template /usr/local/src/mapnik-style/inc
 RUN cd /usr/local/src/mapnik-style/inc && sed --file /tmp/datasource-settings.sed  datasource-settings.xml.inc.template > datasource-settings.xml.inc
 ADD settings.sed /tmp/
 RUN cd /usr/local/src/mapnik-style/inc && sed --file /tmp/settings.sed  settings.xml.inc.template > settings.xml.inc
 
 # Configure renderd
-ADD renderd.conf.sed /tmp/
-RUN cd /usr/local/etc && sed --file /tmp/renderd.conf.sed --in-place renderd.conf
+ADD renderd/renderd.conf /usr/local/etc
 
 # Create the files required for the mod_tile system to run
 RUN mkdir /var/run/renderd && chown www-data: /var/run/renderd
