@@ -59,11 +59,7 @@ RUN cd /usr/local/src/mapnik-style && ./get-coastlines.sh /usr/local/share
 
 # Configure mapnik style-sheets
 RUN cd /usr/local/src/mapnik-style/inc && cp fontset-settings.xml.inc.template fontset-settings.xml.inc
-
-ADD datasource-settings.xml.inc.template /tmp
-
-RUN cd /usr/local/src/mapnik-style/inc && cat /tmp/datasource-settings.xml.inc.template | sed 's/GIS_HOST/'"$GIS_HOST"'/' | sed 's/GIS_PORT/'"$GIS_PORT"'/' | sed 's/GIS_USER/'"$GIS_USER"'/' | sed 's/GIS_PASSWORD/'"$GIS_PASSWORD"'/' | sed 's/GIS_DATABASE/'"$GIS_DATABASE"'/' > datasource-settings.xml.inc
-
+ADD datasource-settings.xml.inc.template /usr/local/src/mapnik-style/inc
 ADD settings.sed /tmp/
 RUN cd /usr/local/src/mapnik-style/inc && sed --file /tmp/settings.sed  settings.xml.inc.template > settings.xml.inc
 
@@ -79,21 +75,9 @@ ADD mod_tile.load /etc/apache2/mods-available/
 ADD mod_tile.conf /etc/apache2/mods-available/
 RUN a2enmod mod_tile
 
-# Ensure the webserver user can connect to the gis database
-# MG: NEED TO COMMENT OUT WHEN CONNECTING TO RDS
-# RUN sed -i -e 's/local   all             all                                     peer/local gis www-data peer/' /etc/postgresql/9.3/main/pg_hba.conf
-
-# Tune postgresql
-#ADD postgresql.conf.sed /tmp/
-#RUN sed --file /tmp/postgresql.conf.sed --in-place /etc/postgresql/9.3/main/postgresql.conf
-
 # Define the application logging logic
 ADD syslog-ng.conf /etc/syslog-ng/conf.d/local.conf
 RUN rm -rf /var/log/postgresql
-
-# Create a `postgresql` `runit` service
-#ADD postgresql /etc/sv/postgresql
-#RUN update-service --add /etc/sv/postgresql
 
 # Create an `apache2` `runit` service
 ADD apache2 /etc/sv/apache2
@@ -102,6 +86,9 @@ RUN update-service --add /etc/sv/apache2
 # Create a `renderd` `runit` service
 ADD renderd /etc/sv/renderd
 RUN update-service --add /etc/sv/renderd
+
+# Add PostgreSQL client
+RUN apt-get install -y postgresql-client
 
 # Clean up APT when done
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -123,9 +110,10 @@ ADD README.md /usr/local/share/doc/
 RUN mkdir -p /usr/local/share/doc/run
 ADD help.txt /usr/local/share/doc/run/help.txt
 
+
 # Add the entrypoint
 ADD run.sh /usr/local/sbin/run
 ENTRYPOINT ["/sbin/my_init", "--", "/usr/local/sbin/run"]
 
 # Default to showing the usage text
-CMD ["help"]
+CMD ["startservices"]

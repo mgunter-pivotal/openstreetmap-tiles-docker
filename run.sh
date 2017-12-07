@@ -17,6 +17,10 @@ _startservice () {
     sv start $1 || die "Could not start $1"
 }
 
+_prepare_database_connection() {
+  cat /usr/local/src/mapnik-style/inc/datasource-settings.xml.inc.template | sed 's/GIS_HOST/'"$GIS_HOST"'/' | sed 's/GIS_PORT/'"$GIS_PORT"'/' | sed 's/GIS_USER/'"$GIS_USER"'/' | sed 's/GIS_PASSWORD/'"$GIS_PASSWORD"'/' | sed 's/GIS_DATABASE/'"$GIS_DATABASE"'/' > /usr/local/src/mapnik-style/inc/datasource-settings.xml.inc
+}
+
 startdb () {
     _startservice postgresql
 }
@@ -94,6 +98,7 @@ cli () {
 }
 
 startservices () {
+    _prepare_database_connection
     _startservice renderd
     _startservice apache2
 }
