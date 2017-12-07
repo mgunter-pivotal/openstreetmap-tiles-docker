@@ -60,7 +60,8 @@ RUN cd /usr/local/src/mapnik-style && ./get-coastlines.sh /usr/local/share
 # Configure mapnik style-sheets
 RUN cd /usr/local/src/mapnik-style/inc && cp fontset-settings.xml.inc.template fontset-settings.xml.inc
 ADD datasource-settings.xml.inc.template /usr/local/src/mapnik-style/inc
-RUN cd /usr/local/src/mapnik-style/inc && sed --file /tmp/datasource-settings.sed  datasource-settings.xml.inc.template > datasource-settings.xml.inc
+RUN cd /usr/local/src/mapnik-style/inc && cat datasource-settings.xml.inc.template | sed 's/GIS_HOST/'"$GIS_HOST"'/' | sed 's/GIS_PORT/'"$GIS_PORT"'/' | sed 's/GIS_USER/'"$GIS_USER"'/' | sed 's/GIS_PASSWORD/'"$GIS_PASSWORD"'/' | sed 's/GIS_DATABASE/'"$GIS_DATABASE"'/' > datasource-settings.xml.inc
+
 ADD settings.sed /tmp/
 RUN cd /usr/local/src/mapnik-style/inc && sed --file /tmp/settings.sed  settings.xml.inc.template > settings.xml.inc
 
