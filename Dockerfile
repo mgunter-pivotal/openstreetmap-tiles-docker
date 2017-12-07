@@ -27,17 +27,7 @@ RUN apt-get install -y subversion git-core tar unzip wget bzip2 build-essential 
 
 RUN apt-get install -y autoconf apache2-dev libtool libxml2-dev libbz2-dev libgeos-dev libgeos++-dev libproj-dev gdal-bin libgdal1-dev mapnik-utils python-mapnik libmapnik-dev
 
-# Install postgresql and postgis
-RUN apt-get install -y postgresql-9.3-postgis-2.1 postgresql-contrib postgresql-server-dev-9.3
 
-# Install osm2pgsql
-RUN cd /tmp && git clone https://github.com/openstreetmap/osm2pgsql.git
-RUN cd /tmp/osm2pgsql && \
-    mkdir build && \
-    cd build && \
-    cmake .. && \
-    make && \
-    make install
 
 # Install the Mapnik library
 RUN cd /tmp && git clone https://github.com/mapnik/mapnik.git
@@ -89,19 +79,19 @@ RUN a2enmod mod_tile
 
 # Ensure the webserver user can connect to the gis database
 # MG: NEED TO COMMENT OUT WHEN CONNECTING TO RDS
-RUN sed -i -e 's/local   all             all                                     peer/local gis www-data peer/' /etc/postgresql/9.3/main/pg_hba.conf
+# RUN sed -i -e 's/local   all             all                                     peer/local gis www-data peer/' /etc/postgresql/9.3/main/pg_hba.conf
 
 # Tune postgresql
-ADD postgresql.conf.sed /tmp/
-RUN sed --file /tmp/postgresql.conf.sed --in-place /etc/postgresql/9.3/main/postgresql.conf
+#ADD postgresql.conf.sed /tmp/
+#RUN sed --file /tmp/postgresql.conf.sed --in-place /etc/postgresql/9.3/main/postgresql.conf
 
 # Define the application logging logic
 ADD syslog-ng.conf /etc/syslog-ng/conf.d/local.conf
 RUN rm -rf /var/log/postgresql
 
 # Create a `postgresql` `runit` service
-ADD postgresql /etc/sv/postgresql
-RUN update-service --add /etc/sv/postgresql
+#ADD postgresql /etc/sv/postgresql
+#RUN update-service --add /etc/sv/postgresql
 
 # Create an `apache2` `runit` service
 ADD apache2 /etc/sv/apache2
@@ -115,10 +105,11 @@ RUN update-service --add /etc/sv/renderd
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Expose the webserver and database ports
-EXPOSE 80 5432
+EXPOSE 80 
+# 5432
 
 # We need the volume for importing data from
-VOLUME ["/data"]
+# VOLUME ["/data"]
 
 # Set the osm2pgsql import cache size in MB. Used in `run import`.
 ENV OSM_IMPORT_CACHE 800
